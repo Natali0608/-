@@ -1,4 +1,4 @@
-const CACHE_NAME = 'codex-v8';
+const CACHE_NAME = 'codex-v10';
 const FILES = [
   './',
   './index.html',
