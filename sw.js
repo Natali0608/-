@@ -1,7 +1,8 @@
-const CACHE_NAME = 'codex-v5';
+const CACHE_NAME = 'codex-v6';
 const FILES = [
   './',
   './index.html',
+  './data.js',
   './manifest.json',
   './icon-192.png',
   './icon-512.png'
