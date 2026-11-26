@@ -1,11 +1,332 @@
-const label = document.createElement('div');
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1e3a5f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Кодекс</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    margin: 0; background: #f4f5f7; color: #1a1a1a; padding-bottom: 40px;
+  }
+  .header {
+    position: sticky; top: 0; background: #1e3a5f; color: white;
+    padding: 12px 14px; z-index: 10; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  .header-top { display: flex; align-items: center; gap: 6px; }
+  .back-btn {
+    background: none; border: none; color: white; font-size: 24px;
+    cursor: pointer; padding: 2px 8px 2px 0; display: none; line-height: 1;
+  }
+  .back-btn.visible { display: block; }
+  .header-title {
+    font-size: 16px; font-weight: 600; flex: 1;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .search {
+    width: 100%; padding: 9px 12px; font-size: 15px; border: none;
+    border-radius: 8px; outline: none; background: rgba(255,255,255,0.18);
+    color: white; margin-top: 8px;
+  }
+  .search::placeholder { color: rgba(255,255,255,0.65); }
+  .content { padding: 12px; }
+
+  .article-item {
+    background: white; border-radius: 10px; padding: 14px 16px;
+    margin-bottom: 8px; cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06); transition: transform 0.1s;
+  }
+  .article-item:active { transform: scale(0.98); }
+  .article-number {
+    font-size: 12px; color: #1e3a5f; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;
+  }
+  .article-title { font-size: 15px; line-height: 1.4; }
+
+  .article-detail-header {
+    background: white; border-radius: 10px; padding: 14px 16px;
+    margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .article-detail-header .article-number { font-size: 13px; }
+  .article-detail-header .article-title {
+    font-size: 16px; font-weight: 600; margin-top: 4px; line-height: 1.4;
+  }
+  .section-label {
+    font-size: 11px; color: #666; text-transform: uppercase;
+    letter-spacing: 0.5px; margin: 14px 4px 8px; font-weight: 600;
+  }
+  .part-card {
+    background: white; border-radius: 10px; padding: 14px 16px;
+    margin-bottom: 8px; cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    display: flex; align-items: center; gap: 12px;
+    transition: transform 0.1s;
+  }
+  .part-card:active { transform: scale(0.98); }
+  .part-badge {
+    background: #1e3a5f; color: white; font-size: 13px; font-weight: 700;
+    padding: 6px 10px; border-radius: 6px; flex-shrink: 0;
+  }
+  .part-card-text { flex: 1; }
+  .part-card-title { font-size: 15px; line-height: 1.4; font-weight: 500; }
+  .part-card-meta { font-size: 12px; color: #888; margin-top: 3px; }
+  .chev { color: #bbb; font-size: 20px; flex-shrink: 0; }
+
+  .part-intro {
+    background: #eaf1f8; border-left: 4px solid #1e3a5f;
+    padding: 12px 14px; border-radius: 6px; font-size: 14px;
+    line-height: 1.5; margin-bottom: 4px;
+  }
+  .items-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  }
+  @media (min-width: 600px) {
+    .items-grid { grid-template-columns: 1fr 1fr 1fr; }
+  }
+  .item-card {
+    background: white; border-radius: 12px; padding: 16px 10px;
+    cursor: pointer; text-align: center; font-size: 14px; line-height: 1.35;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    min-height: 95px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 8px;
+    transition: transform 0.1s; border: 1.5px solid transparent;
+  }
+  .item-card:active { transform: scale(0.97); border-color: #1e3a5f; }
+  .item-card-icon { font-size: 26px; }
+  .item-card-title { font-weight: 500; }
+.detail-card {
+    background: white; border-radius: 10px; padding: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .detail-title {
+    font-size: 17px; font-weight: 700; line-height: 1.35;
+    margin-bottom: 14px; color: #1e3a5f;
+  }
+  .detail-text { font-size: 15px; line-height: 1.6; white-space: pre-wrap; }
+  .detail-meta {
+    font-size: 12px; color: #888; margin-top: 16px;
+    padding-top: 12px; border-top: 1px solid #eee;
+  }
+
+  .empty { text-align: center; color: #888; padding: 40px 20px; font-size: 15px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <button class="back-btn" id="backBtn" onclick="goBack()">←</button>
+    <div class="header-title" id="headerTitle">📖 Кодекс</div>
+  </div>
+  <input type="text" class="search" id="search"
+         placeholder="Поиск по номеру, названию или нарушению..." oninput="onSearch()">
+</div>
+
+<div class="content" id="content"></div>
+
+<script>
+// ============================================================
+//  ДАННЫЕ — статья → части → нарушения (items)
+// ============================================================
+const articles = [
+  {
+    number: "Статья 11.23",
+    title: "Нарушение правил управления ТС без тахографа",
+    parts: [
+      {
+        num: "1",
+        title: "Управление ТС без тахографа или с неисправным",
+        intro: "Управление транспортным средством без тахографа либо с неисправным тахографом.",
+        items: [
+          { icon: "🚫", title: "Без тахографа", text: "Управление ТС без тахографа — штраф от 3000 до 5000 ₽." },
+          { icon: "⚠️", title: "Тахограф неисправен", text: "Управление ТС с неисправным тахографом — штраф от 3000 до 5000 ₽." },
+          { icon: "⏱", title: "Нарушен режим труда", text: "Нарушение водителем режима труда и отдыха — штраф от 1500 до 2000 ₽." }
+        ]
+      },
+      {
+        num: "2",
+        title: "Выпуск на линию без тахографа (должностные лица)",
+        intro: "Действия должностных лиц, ответственных за техническое состояние ТС.",
+        items: [
+          { icon: "📋", title: "Выпуск без тахографа", text: "Выпуск на линию ТС без тахографа — штраф от 8000 до 10000 ₽." },
+          { icon: "🔧", title: "Выпуск с неисправным", text: "Выпуск на линию с неисправным тахографом — штраф от 8000 до 10000 ₽." }
+        ]
+      },
+      {
+        num: "3",
+        title: "Нарушение режима труда и отдыха",
+        intro: "Нарушение водителем установленного режима труда и отдыха.",
+        items: [
+          { icon: "⏰", title: "Превышение времени", text: "Превышение времени управления ТС — штраф 1500–2000 ₽." },
+          { icon: "😴", title: "Отсутствие отдыха", text: "Несоблюдение времени отдыха — штраф 1500–2000 ₽." }
+        ]
+      }
+    ]
+  },
+  {
+    number: "Статья 12.31",
+    title: "Выпуск на линию ТС без техосмотра",
+    parts: [
+      {
+        num: "1",
+        title: "Без регистрации или техосмотра",
+        items: [
+          { icon: "📋", title: "Без регистрации", text: "Выпуск на линию ТС, не зарегистрированного в установленном порядке." },
+          { icon: "🔧", title: "Без техосмотра", text: "Выпуск на линию без прохождения техосмотра." }
+        ]
+      }
+    ]
+  }
+];
+
+// ============================================================
+//  ЛОГИКА
+// ============================================================
+let state = { level: 'list' };
+let searchQuery = '';
+
+history.replaceState({ level: 'list' }, '');
+
+window.addEventListener('popstate', (e) => {
+  state = e.state || { level: 'list' };
+  render();
+});
+
+function goBack() { history.back(); }
+
+function navigate(newState) {
+  state = newState;
+  history.pushState(newState, '');
+  render();
+}
+
+function onSearch() {
+  searchQuery = document.getElementById('search').value;
+  if (state.level === 'list') render();
+}
+
+function render() {
+  const backBtn = document.getElementById('backBtn');
+  const titleEl = document.getElementById('headerTitle');
+  const searchEl = document.getElementById('search');
+document.getElementById('content').innerHTML = '';
+
+  if (state.level === 'list') {
+    titleEl.textContent = '📖 Кодекс';
+    backBtn.classList.remove('visible');
+    searchEl.style.display = 'block';
+    renderList();
+  } else if (state.level === 'article') {
+    const a = articles[state.articleIdx];
+    titleEl.textContent = a.number;
+    backBtn.classList.add('visible');
+    searchEl.style.display = 'none';
+    renderArticle(a, state.articleIdx);
+  } else if (state.level === 'part') {
+    const a = articles[state.articleIdx];
+    const p = a.parts[state.partIdx];
+    titleEl.textContent = a.number + ' · Ч. ' + p.num;
+    backBtn.classList.add('visible');
+    searchEl.style.display = 'none';
+    renderPart(a, state.articleIdx, p, state.partIdx);
+  } else if (state.level === 'item') {
+    const a = articles[state.articleIdx];
+    const p = a.parts[state.partIdx];
+    const it = p.items[state.itemIdx];
+    titleEl.textContent = 'Ч. ' + p.num;
+    backBtn.classList.add('visible');
+    searchEl.style.display = 'none';
+    renderItem(a, p, it);
+  }
+  window.scrollTo(0, 0);
+}
+
+function renderList() {
+  const content = document.getElementById('content');
+  const q = (searchQuery || '').trim().toLowerCase();
+  const filtered = articles.filter(a => {
+    if (!q) return true;
+    if (a.number.toLowerCase().includes(q)) return true;
+    if (a.title.toLowerCase().includes(q)) return true;
+    return a.parts.some(p =>
+      (p.title || '').toLowerCase().includes(q) ||
+      (p.intro || '').toLowerCase().includes(q) ||
+      (p.items || []).some(it =>
+        it.title.toLowerCase().includes(q) || (it.text || '').toLowerCase().includes(q)
+      )
+    );
+  });
+
+  if (filtered.length === 0) {
+    content.innerHTML = '<div class="empty">Ничего не найдено</div>';
+    return;
+  }
+  filtered.forEach(a => {
+    const idx = articles.indexOf(a);
+    const div = document.createElement('div');
+    div.className = 'article-item';
+    div.onclick = () => navigate({ level: 'article', articleIdx: idx });
+    div.innerHTML = '<div class="article-number">' + a.number + '</div>' +
+                    '<div class="article-title">' + a.title + '</div>';
+    content.appendChild(div);
+  });
+}
+
+function renderArticle(a, articleIdx) {
+  const content = document.getElementById('content');
+
+  const head = document.createElement('div');
+  head.className = 'article-detail-header';
+  head.innerHTML = '<div class="article-number">' + a.number + '</div>' +
+                   '<div class="article-title">' + a.title + '</div>';
+  content.appendChild(head);
+
+  const label = document.createElement('div');
+  label.className = 'section-label';
+  label.textContent = 'Части статьи (' + a.parts.length + ')';
+  content.appendChild(label);
+
+  a.parts.forEach((p, partIdx) => {
+    const count = (p.items || []).length;
+    const meta = count > 0 ? count + ' ' + plural(count, 'нарушение', 'нарушения', 'нарушений') : 'Текст';
+    const card = document.createElement('div');
+    card.className = 'part-card';
+    card.onclick = () => navigate({ level: 'part', articleIdx, partIdx });
+    card.innerHTML =
+      '<div class="part-badge">Ч. ' + p.num + '</div>' +
+      '<div class="part-card-text">' +
+        '<div class="part-card-title">' + (p.title || 'Часть ' + p.num) + '</div>' +
+        '<div class="part-card-meta">' + meta + '</div>' +
+      '</div>' +
+      '<div class="chev">›</div>';
+    content.appendChild(card);
+  });
+}
+
+function renderPart(a, articleIdx, p, partIdx) {
+  const content = document.getElementById('content');
+
+  if (p.intro) {
+    const intro = document.createElement('div');
+    intro.className = 'part-intro';
+    intro.textContent = p.intro;
+    content.appendChild(intro);
+  }
+
+  if (p.items && p.items.length > 0) {
+    const label = document.createElement('div');
     label.className = 'section-label';
     label.textContent = 'Выберите нарушение';
     content.appendChild(label);
 
     const grid = document.createElement('div');
     grid.className = 'items-grid';
-    p.items.forEach((it, itemIdx) => {
+p.items.forEach((it, itemIdx) => {
       const card = document.createElement('div');
       card.className = 'item-card';
       card.onclick = () => navigate({ level: 'item', articleIdx, partIdx, itemIdx });
@@ -52,3 +373,6 @@ render();
 </script>
 </body>
 </html>
+
+
+
